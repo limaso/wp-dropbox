@@ -11,13 +11,20 @@ Author URI: http://limaso.de
 
 */
 
+$dropbox_username = get_option('dropbox_username');
+
+if ('insert' == $HTTP_POST_VARS['action']) {
+    update_option("dropbox_username",$HTTP_POST_VARS['dropbox_username']);
+}
+
+
 function wp_dropbox_options_page() {
 ?>
     
     <div class="wrap">
       <h2>Dropbox Optionen</h2>
       <form name="form1" method="post" action="<?=$location ?>">
-      	<input name="fb_meta_field" value="<?=get_option("fb_meta_field");?>" type="text" />
+      	<input name="dropbox_username" value="<?=get_option("dropbox_username");?>" type="text" />
       	<input type="submit" value="Speichern" />
       	<input name="action" value="insert" type="hidden" />
       </form>
@@ -31,4 +38,5 @@ function wp_dropbox_menu() {
 }
 
 add_action('admin_menu', 'wp_dropbox_menu');
+
 ?>
