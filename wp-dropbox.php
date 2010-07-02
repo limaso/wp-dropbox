@@ -13,13 +13,6 @@ Author URI: http://limaso.de
 
 require_once('dropboxConnections.php');
 
-$dropboxEmail = get_option('dropbox_email');
-$dropboxPassword = get_option('dropbox_password');
-
-$dbConn = new dropboxConnection($dropboxEmail, $dropboxPassword);
-
-$folders = $dbConn->getdirs();
-
 if ('insert' == $HTTP_POST_VARS['action']) {
     update_option("dropbox_email",$HTTP_POST_VARS['dropbox_email']);
     update_option("dropbox_password",$HTTP_POST_VARS['dropbox_password']);
@@ -32,7 +25,19 @@ function wp_dropbox_main_page() {
       <h2>My Dropbox</h2>
       <hr />
       <?php
-        echo($folders[0]);
+
+        $dropboxEmail = get_option('dropbox_email');
+        $dropboxPassword = get_option('dropbox_password');
+
+        $dbConn = new dropboxConnection($dropboxEmail, $dropboxPassword);
+
+        $folders = $dbConn->getdirs('Schule/');
+        
+        foreach($folders as $folder) {
+            echo($folder."<br>");
+        }
+        
+        //$dbConn->upload('/users/maso/www/wp-content/uploads/2010/07/telefonbenutzung.png');
       ?>
     </div>
     
