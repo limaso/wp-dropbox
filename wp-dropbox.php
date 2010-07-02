@@ -31,13 +31,15 @@ function wp_dropbox_main_page() {
 
         $dbConn = new dropboxConnection($dropboxEmail, $dropboxPassword);
 
-        $folders = $dbConn->getdirs('Schule/');
+        $folders = $dbConn->getfiles('/Schule');
+        
+        echo(count($folders));
         
         foreach($folders as $folder) {
             echo($folder."<br>");
         }
         
-        //$dbConn->upload('/users/maso/www/wp-content/uploads/2010/07/telefonbenutzung.png');
+        $dbConn->upload('/users/maso/www/wp-content/uploads/2010/07/telefonbenutzung.png', 'Schule');
       ?>
     </div>
     
