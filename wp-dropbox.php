@@ -11,10 +11,9 @@ Author URI: http://limaso.de
 
 */
 
-$dropbox_username = get_option('dropbox_username');
-
 if ('insert' == $HTTP_POST_VARS['action']) {
-    update_option("dropbox_username",$HTTP_POST_VARS['dropbox_username']);
+    update_option("dropbox_email",$HTTP_POST_VARS['dropbox_email']);
+    update_option("dropbox_password",$HTTP_POST_VARS['dropbox_password']);
 }
 
 
@@ -24,7 +23,16 @@ function wp_dropbox_options_page() {
     <div class="wrap">
       <h2>Dropbox Optionen</h2>
       <form name="form1" method="post" action="<?=$location ?>">
-      	<input name="dropbox_username" value="<?=get_option("dropbox_username");?>" type="text" />
+        <table>
+            <tr>
+                <td>E-Mail:</td>
+                <td><input name="dropbox_email" value="<?=get_option("dropbox_email");?>" type="text" /></td>
+            </tr>
+            <tr>
+                <td>Passwort:</td>
+                <td><input name="dropbox_password" value="<?=get_option("dropbox_password");?>" type="text" /></td>
+            </tr>
+        </table>
       	<input type="submit" value="Speichern" />
       	<input name="action" value="insert" type="hidden" />
       </form>
