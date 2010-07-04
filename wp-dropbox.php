@@ -16,7 +16,31 @@ require_once('dropboxConnections.php');
 if ('insert' == $HTTP_POST_VARS['action']) {
     update_option("dropbox_email",$HTTP_POST_VARS['dropbox_email']);
     update_option("dropbox_password",$HTTP_POST_VARS['dropbox_password']);
+    ?>
+    <div id="message" class="updated"><p>
+    Einstellungen gespeichert!
+    </p></div>
+    <?php
 }
+if ('backup' == $HTTP_POST_VARS['action']) {
+    update_option("dropbox_folder",$HTTP_POST_VARS['dropbox_folder']);
+    ?>
+    <div id="message" class="updated"><p>
+    Einstellungen gespeichert!
+    </p></div>
+    <?php
+}
+
+dodir("/users/maso/www/wp-content/uploads");
+      ?>
+      <h3>Statistik f&uuml;r den /wp-content/uploads Ordner:</h3>
+      <p>
+      <strong>Dateien:</strong> <?php echo $dateien; ?><br />
+      <strong>Gesamte Gr&ouml;&szlig;e:</strong> <?php echo $groesse ?>
+      </p>
+    </div>
+    
+<?php
 
 function wp_dropbox_main_page() {
 ?>
@@ -26,21 +50,19 @@ function wp_dropbox_main_page() {
       <hr />
       <?php
 
-        $dropboxEmail = get_option('dropbox_email');
-        $dropboxPassword = get_option('dropbox_password');
+        //$dropboxEmail = get_option('dropbox_email');
+        //$dropboxPassword = get_option('dropbox_password');
 
-        $dbConn = new dropboxConnection($dropboxEmail, $dropboxPassword);
-
-        $folders = $dbConn->getfiles('/Schule');
+        //$dbConn = new dropboxConnection($dropboxEmail, $dropboxPassword);
         
-        echo(count($folders));
-        
-        foreach($folders as $folder) {
-            echo($folder."<br>");
-        }
-        
-        $dbConn->upload('/users/maso/www/wp-content/uploads/2010/07/telefonbenutzung.png', 'Schule');
+        //$dbConn->upload('/users/maso/www/wp-content/uploads/2010/07/telefonbenutzung.png', get_option("dropbox_folder"));
+        dodir("/users/maso/www/wp-content/uploads");
       ?>
+      <h3>Statistik f&uuml;r den /wp-content/uploads Ordner:</h3>
+      <p>
+      <strong>Dateien:</strong> <?php echo $dateien; ?><br />
+      <strong>Gesamte Gr&ouml;&szlig;e:</strong> <?php echo $groesse ?>
+      </p>
     </div>
     
 <?php
@@ -50,7 +72,7 @@ function wp_dropbox_options_page() {
 ?>
     
     <div class="wrap">
-      <h2>Dropbox Einstellungen</h2>
+      <h2>Dropbox Login</h2>
       <hr />
       <form name="form1" method="post" action="<?=$location ?>">
         <table>
@@ -71,10 +93,57 @@ function wp_dropbox_options_page() {
         </table>
       	<input name="action" value="insert" type="hidden" />
       </form>
+      
+      <h2>Backup Einstellungen</h2>
+      <hr />
+      <form name="form2" method="post" action="<?=$location ?>">
+        <table>
+            <tr>
+                <td colspan="2"><h3>Ihr Dropbox Login</h3></td>
+            </tr>
+            <tr>
+                <td width="200">Backupordner:</td>
+                <td><input type="text" name="dropbox_folder" value="<?=get_option("dropbox_folder");?>" size="35" /></td>
+            </tr>
+            <tr>
+                <td colspan="2" align="right"><input type="submit" value="Speichern" /></td>
+            </tr>
+        </table>
+      	<input name="action" value="backup" type="hidden" />
+      </form>
     </div>
     
 <?php
 }   // function wp_dropbox_options_page() ends
+
+function dodir($dir) {
+    global $groesse, $dateien, $ordner;
+    $dirobj = dir($dir);
+    while($item = $dirobj->read()) {
+        if($item == ".") continue;
+        if($item == "..") continue;
+        if(is_dir($dir."/".$item)) {
+            dodir($dir."/".$item);
+            $ordner++;
+        } else {
+            $dateien++;
+            $groesse += filesize($dir."/".$item);
+        }
+    }
+}
+
+function ordner($dir) {
+    $dirobj = dir($dir);
+    while($item = $dirobj->read()) {
+        if($item == ".") continue;
+        if($item == "..") continue;
+        if(is_dir($dir."/".$item)) {
+            ordner($dir."/".$item);
+            $ordner++;
+        }
+    }
+    return $ordner;
+}
 
 function wp_dropbox_menu() {
     add_menu_page('My Dropbox', 'My Dropbox', 9, __FILE__, 'wp_dropbox_main_page', '../wp-content/plugins/wp-dropbox/images/dropbox_icon.gif');
