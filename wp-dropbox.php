@@ -32,8 +32,6 @@ if ('backup' == $HTTP_POST_VARS['action']) {
 }
 
 function wp_dropbox_main_page() {
-    $dateien = 0;
-    $ordner = 0;
 ?>
     
     <div class="wrap">
@@ -48,21 +46,9 @@ function wp_dropbox_main_page() {
         
         //$dbConn->upload('/users/maso/www/wp-content/uploads/2010/07/telefonbenutzung.png', get_option("dropbox_folder"));
         
-        $handle=opendir ("/users/maso/www/wp-content/uploads");
-        echo "Verzeichnisinhalt:<br>";
-        while ($datei = readdir ($handle)) {
-            if($datei == ".") continue;
-            if($datei == "..") continue;
-            echo $datei."<br>";
-            if(is_dir($datei)) {
-                $ordner++;
-            } else {
-                $dateien++;
-            }
-        }
-        closedir($handle);
+        $ordner = ordner("/users/maso/www/wp-content/uploads");
         
-        echo $dateien." - ".$ordner;
+        echo $ordner[0]." - ".$ordner[1];
         
       ?>
       <h3>Statistik f&uuml;r den /wp-content/uploads Ordner:</h3>
@@ -127,6 +113,25 @@ function wp_dropbox_menu() {
     add_menu_page('My Dropbox', 'My Dropbox', 9, __FILE__, 'wp_dropbox_main_page', '../wp-content/plugins/wp-dropbox/images/dropbox_icon.gif');
     add_submenu_page(__FILE__, 'My Dropbox', 'My Dropbox', 9, __FILE__, 'wp_dropbox_main_page');
     add_submenu_page(__FILE__, 'Dropbox Einstellungen', 'Einstellungen', 9, '', 'wp_dropbox_options_page');
+}
+
+function ordner($f) {
+    $dateien = 0;
+    $ordner = 0;
+    $handle = opendir($f);
+    echo "Verzeichnisinhalt:<br>";
+    while ($datei = readdir ($handle)) {
+        if($datei == ".") continue;
+        if($datei == "..") continue;
+        echo $datei."<br>";
+        if(is_dir($f."/".$datei)) {
+            $ordner++;
+        } else {
+            $dateien++;
+        }
+    }
+    closedir($handle);
+    return array($ordner, $dateien);
 }
 
 add_action('admin_menu', 'wp_dropbox_menu');
