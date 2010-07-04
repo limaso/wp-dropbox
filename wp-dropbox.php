@@ -47,14 +47,12 @@ function wp_dropbox_main_page() {
         //$dbConn->upload('/users/maso/www/wp-content/uploads/2010/07/telefonbenutzung.png', get_option("dropbox_folder"));
         
         $ordner = ordner("/users/maso/www/wp-content/uploads");
-        
-        echo $ordner[0]." - ".$ordner[1];
-        
       ?>
       <h3>Statistik f&uuml;r den /wp-content/uploads Ordner:</h3>
       <p>
-      <strong>Dateien:</strong> <?php echo $dateien; ?><br />
-      <strong>Gesamte Gr&ouml;&szlig;e:</strong> <?php echo $groesse ?>
+      <strong>Ordner:</strong> <?=$ordner[0]; ?><br />
+      <strong>Dateien:</strong> <?=$ordner[1]; ?><br />
+      <strong>Gesamte Gr&ouml;&szlig;e:</strong> <?=round($ordner[2]/1024/1024, 2) . " MB" ?>
       </p>
     </div>
     
@@ -116,22 +114,22 @@ function wp_dropbox_menu() {
 }
 
 function ordner($f) {
-    $dateien = 0;
-    $ordner = 0;
+    global $dateien, $ordner, $groesse;
     $handle = opendir($f);
-    echo "Verzeichnisinhalt:<br>";
-    while ($datei = readdir ($handle)) {
+    while ($datei = readdir($handle)) {
         if($datei == ".") continue;
         if($datei == "..") continue;
-        echo $datei."<br>";
+        
         if(is_dir($f."/".$datei)) {
             $ordner++;
+            ordner($f."/".$datei);
         } else {
             $dateien++;
+            $groesse += filesize($f."/".$datei);
         }
     }
     closedir($handle);
-    return array($ordner, $dateien);
+    return array($ordner, $dateien, $groesse);
 }
 
 add_action('admin_menu', 'wp_dropbox_menu');
