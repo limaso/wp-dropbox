@@ -22,7 +22,7 @@ if ('insert' == $HTTP_POST_VARS['action']) {
     </p></div>
     <?php
 }
-if ('backup' == $HTTP_POST_VARS['action']) {
+if ('backupoptions' == $HTTP_POST_VARS['action']) {
     update_option("dropbox_folder",$HTTP_POST_VARS['dropbox_folder']);
     ?>
     <div id="message" class="updated"><p>
@@ -38,15 +38,10 @@ function wp_dropbox_main_page() {
       <h2>My Dropbox</h2>
       <hr />
       <?php
-
-        //$dropboxEmail = get_option('dropbox_email');
-        //$dropboxPassword = get_option('dropbox_password');
-
-        //$dbConn = new dropboxConnection($dropboxEmail, $dropboxPassword);
-        
-        //$dbConn->upload('/users/maso/www/wp-content/uploads/2010/07/telefonbenutzung.png', get_option("dropbox_folder"));
+        //echo strpos('/users/maso/www/wp-content/uploads/', 'uploads', 0);
         
         $ordner = ordner("/users/maso/www/wp-content/uploads");
+        dodbBackup("/users/maso/www/wp-content/uploads");
       ?>
       <h3>Statistik f&uuml;r den /wp-content/uploads Ordner:</h3>
       <p>
@@ -100,7 +95,7 @@ function wp_dropbox_options_page() {
                 <td colspan="2" align="right"><input type="submit" value="Speichern" /></td>
             </tr>
         </table>
-      	<input name="action" value="backup" type="hidden" />
+      	<input name="action" value="backupoptions" type="hidden" />
       </form>
     </div>
     
@@ -130,6 +125,25 @@ function ordner($f) {
     }
     closedir($handle);
     return array($ordner, $dateien, $groesse);
+}
+
+function dodbBackup($f) {
+    $dropboxEmail = get_option('dropbox_email');
+    $dropboxPassword = get_option('dropbox_password');
+    $dbConn = new dropboxConnection($dropboxEmail, $dropboxPassword);
+    
+    $handle = opendir($f);
+    while ($datei = readdir($handle)) {
+        if($datei == ".") continue;
+        if($datei == "..") continue;
+        
+        if(is_dir($f."/".$datei)) {
+            dodbBackup($f."/".$datei);
+        } else {
+            $dbConn->upload($f."/".$datei, get_option("dropbox_folder")."/".substr($f, strpos($f, 'uploads', 0) + 8));
+        }
+    }
+    closedir($handle);
 }
 
 add_action('admin_menu', 'wp_dropbox_menu');
